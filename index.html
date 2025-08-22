@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location Sender</title>
+  <script>
+    async function sendLocation() {
+      const status = document.getElementById("status");
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(pos) {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          try {
+            await fetch("https://hooks.zapier.com/hooks/catch/24316041/utg1b8r/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                latitude: lat,
+                longitude: lng,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+              })
+            });
+            status.innerText = "✅ Location sent successfully!";
+          } catch (e) {
+            status.innerText = "❌ Failed to send location.";
+          }
+        }, function(err) {
+          status.innerText = "❌ Unable to get location. Please allow permission.";
+        });
+      } else {
+        status.innerText = "❌ Geolocation not supported by your browser.";
+      }
+    }
+  </script>
+</head>
+<body onload="sendLocation()" style="font-family: Arial, sans-serif; text-align: center; padding: 2em;">
+  <h2>Fetching your location…</h2>
+  <p id="status">Please wait...</p>
+</body>
+</html>
